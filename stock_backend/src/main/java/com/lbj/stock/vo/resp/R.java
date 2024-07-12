@@ -1,4 +1,4 @@
-package com.lbj.stock.pojo.vo.resp;
+package com.lbj.stock.vo.resp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

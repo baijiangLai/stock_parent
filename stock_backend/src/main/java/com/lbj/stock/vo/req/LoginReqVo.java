@@ -1,4 +1,4 @@
-package com.lbj.stock.pojo.vo.req;
+package com.lbj.stock.vo.req;
 
 import lombok.Data;
 
@@ -25,5 +25,5 @@ public class LoginReqVo {
     /**
      * 存入redis的随机码的key
      */
-    //private String sessionId;
+    private String sessionId;
 }
