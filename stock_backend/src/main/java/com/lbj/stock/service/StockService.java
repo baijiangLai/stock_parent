@@ -1,8 +1,6 @@
 package com.lbj.stock.service;
 
-import com.lbj.stock.pojo.domain.InnerMarketDomain;
-import com.lbj.stock.pojo.domain.StockBlockDomain;
-import com.lbj.stock.pojo.domain.StockUpdownDomain;
+import com.lbj.stock.pojo.domain.*;
 import com.lbj.stock.vo.resp.PageResult;
 import com.lbj.stock.vo.resp.R;
 
@@ -22,4 +20,12 @@ public interface StockService {
     R<Map> getStockUpDownCount();
 
     void stockExport(HttpServletResponse response, Integer page, Integer pageSize);
+
+    R<Map> stockTradeVol4InnerMarket();
+
+    R<Map> stockUpDownScopeCount();
+
+    R<List<Stock4MinuteDomain>> stockScreenTimeSharing(String code);
+
+    R<List<Stock4EvrDayDomain>> stockScreenDkLine(String stockCode);
 }

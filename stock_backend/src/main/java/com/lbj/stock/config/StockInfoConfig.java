@@ -13,4 +13,6 @@ public class StockInfoConfig {
     private List<String> inner;
     //外盘ID集合
     private List<String> outer;
+    //股票区间
+    private List<String> upDownRange;
 }

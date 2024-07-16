@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import javax.validation.constraints.Past;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author 95174
@@ -29,4 +30,6 @@ public interface StockMarketIndexInfoMapper {
     int updateByPrimaryKey(StockMarketIndexInfo record);
 
     List<InnerMarketDomain> getMarketInfo(@Param("innerCodes") List<String> innerCodes, @Param("curDate") Date curDate);
+
+    List<Map> getSumAmtInfo(@Param("markedIds") List<String> markedIds, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
 }

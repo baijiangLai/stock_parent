@@ -1,8 +1,6 @@
 package com.lbj.stock.controller;
 
-import com.lbj.stock.pojo.domain.InnerMarketDomain;
-import com.lbj.stock.pojo.domain.StockBlockDomain;
-import com.lbj.stock.pojo.domain.StockUpdownDomain;
+import com.lbj.stock.pojo.domain.*;
 import com.lbj.stock.vo.resp.PageResult;
 import com.lbj.stock.vo.resp.R;
 import com.lbj.stock.service.StockService;
@@ -81,5 +79,44 @@ public class StockController {
                             @RequestParam(name = "page",required = false,defaultValue = "1") Integer page,
                             @RequestParam(name = "pageSize",required = false,defaultValue = "20") Integer pageSize){
         stockService.stockExport(response,page,pageSize);
+    }
+
+    /**
+     * 功能描述：统计国内A股大盘T日和T-1日成交量对比功能（成交量为沪市和深市成交量之和）
+     * @return
+     */
+    @GetMapping("/stock/tradeAmt")
+    public R<Map> stockTradeVol4InnerMarket(){
+        return stockService.stockTradeVol4InnerMarket();
+    }
+
+    /**
+     * 查询当前时间下股票的涨跌幅度区间统计功能
+     * 如果当前日期不在有效时间内，则以最近的一个股票交易时间作为查询点
+     * @return
+     */
+    @GetMapping("/stock/updown")
+    public R<Map> getStockUpDown(){
+        return stockService.stockUpDownScopeCount();
+    }
+
+    /**
+     * 功能描述：查询单个个股的分时行情数据，也就是统计指定股票T日每分钟的交易数据；
+     *         如果当前日期不在有效时间内，则以最近的一个股票交易时间作为查询时间点
+     * @param code 股票编码
+     * @return
+     */
+    @GetMapping("/stock/screen/time-sharing")
+    public R<List<Stock4MinuteDomain>> stockScreenTimeSharing(String code){
+        return stockService.stockScreenTimeSharing(code);
+    }
+
+    /**
+     * 单个个股日K 数据查询 ，可以根据时间区间查询数日的K线数据
+     * @param stockCode 股票编码
+     */
+    @RequestMapping("/stock/screen/dkline")
+    public R<List<Stock4EvrDayDomain>> getDayKLinData(@RequestParam("code") String stockCode){
+        return stockService.stockScreenDkLine(stockCode);
     }
 }

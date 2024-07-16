@@ -1,5 +1,7 @@
 package com.lbj.stock.mapper;
 
+import com.lbj.stock.pojo.domain.Stock4EvrDayDomain;
+import com.lbj.stock.pojo.domain.Stock4MinuteDomain;
 import com.lbj.stock.pojo.domain.StockUpdownDomain;
 import com.lbj.stock.pojo.entity.StockRtInfo;
 import org.apache.ibatis.annotations.Param;
@@ -34,4 +36,9 @@ public interface StockRtInfoMapper {
 
     List<Map> getStockUpDownCount(@Param("openTime") Date openTime, @Param("curTime") Date curTime, @Param("flag") int flag);
 
+    List<Map> getStockUpDownSectionByTime(@Param("curDate") Date curDate);
+
+    List<Stock4MinuteDomain> getStockInfoByCodeAndDate(@Param("code") String code, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    List<Stock4EvrDayDomain> getStockInfo4EvrDay(@Param("code") String code, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
 }
