@@ -5,6 +5,7 @@ import com.lbj.stock.pojo.entity.StockMarketIndexInfo;
 import org.apache.ibatis.annotations.Param;
 
 import javax.validation.constraints.Past;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,4 +33,6 @@ public interface StockMarketIndexInfoMapper {
     List<InnerMarketDomain> getMarketInfo(@Param("innerCodes") List<String> innerCodes, @Param("curDate") Date curDate);
 
     List<Map> getSumAmtInfo(@Param("markedIds") List<String> markedIds, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    int insertBatch(@Param("infos") List<StockMarketIndexInfo> infos);
 }

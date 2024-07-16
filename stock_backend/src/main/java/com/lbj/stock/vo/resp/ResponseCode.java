@@ -1,8 +1,6 @@
 package com.lbj.stock.vo.resp;
 
 /**
- * @author by itheima
- * @Date 2021/12/21
  * @Description
  */
 public enum ResponseCode{

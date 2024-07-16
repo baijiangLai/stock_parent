@@ -8,8 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author by itheima
- * @Date 2021/12/24
  * @Description 登录后响应前端的vo
  */
 @Data

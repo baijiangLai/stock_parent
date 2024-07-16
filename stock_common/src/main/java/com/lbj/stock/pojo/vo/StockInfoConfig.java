@@ -1,4 +1,4 @@
-package com.lbj.stock.config;
+package com.lbj.stock.pojo.vo;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,4 +15,9 @@ public class StockInfoConfig {
     private List<String> outer;
     //股票区间
     private List<String> upDownRange;
+
+    //大盘参数获取url
+    private String marketUrl;
+    //板块参数获取url
+    private String blockUrl;
 }

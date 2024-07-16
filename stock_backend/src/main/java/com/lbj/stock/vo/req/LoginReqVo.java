@@ -3,8 +3,6 @@ package com.lbj.stock.vo.req;
 import lombok.Data;
 
 /**
- * @author by itheima
- * @Date 2021/12/30
  * @Description 登录请求vo
  */
 @Data

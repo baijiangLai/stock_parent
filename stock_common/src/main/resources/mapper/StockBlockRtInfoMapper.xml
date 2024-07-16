@@ -59,6 +59,21 @@
         ,#{tradeAmount,jdbcType=BIGINT},#{tradeVolume,jdbcType=DECIMAL},#{curTime,jdbcType=TIMESTAMP}
         )
     </insert>
+
+    <insert id="insertBatch">
+        insert into stock_block_rt_info
+        ( id,label,block_name
+        ,company_num,avg_price,updown_rate
+        ,trade_amount,trade_volume,cur_time
+        )
+        values 
+        <foreach collection="infos" item="info" separator=",">
+        (#{info.id,jdbcType=BIGINT},#{info.label,jdbcType=VARCHAR},#{info.blockName,jdbcType=VARCHAR}
+           ,#{info.companyNum,jdbcType=INTEGER},#{info.avgPrice,jdbcType=DECIMAL},#{info.updownRate,jdbcType=DECIMAL}
+           ,#{info.tradeAmount,jdbcType=BIGINT},#{info.tradeVolume,jdbcType=DECIMAL},#{info.curTime,jdbcType=TIMESTAMP}
+           )
+        </foreach>
+    </insert>
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.lbj.stock.pojo.entity.StockBlockRtInfo" useGeneratedKeys="true">
         insert into stock_block_rt_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
