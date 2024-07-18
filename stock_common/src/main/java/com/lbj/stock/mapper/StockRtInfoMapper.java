@@ -1,11 +1,14 @@
 package com.lbj.stock.mapper;
 
 import com.lbj.stock.pojo.domain.Stock4EvrDayDomain;
+import com.lbj.stock.pojo.domain.Stock4EvrWeekDomain;
 import com.lbj.stock.pojo.domain.Stock4MinuteDomain;
 import com.lbj.stock.pojo.domain.StockUpdownDomain;
 import com.lbj.stock.pojo.entity.StockRtInfo;
 import org.apache.ibatis.annotations.Param;
+import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -43,4 +46,20 @@ public interface StockRtInfoMapper {
     List<Stock4EvrDayDomain> getStockInfo4EvrDay(@Param("code") String code, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
 
     int insertBatch(@Param("infos") List<StockRtInfo> infos);
+
+    List<Map> getFuzzyCode(@Param("searchStr") String searchStr);
+
+    List<Stock4EvrWeekDomain> getStockInfo4EvrWeek(@Param("stockCode") String stockCode, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    List<Map> getTime4EvrWeek(@Param("stockCode") String stockCode, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    BigDecimal getWeekAvgPrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
+
+    BigDecimal getWeekMinPrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
+
+    BigDecimal getWeekOpenPrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
+
+    BigDecimal getWeekMaxPrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
+
+    BigDecimal getWeekClosePrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
 }

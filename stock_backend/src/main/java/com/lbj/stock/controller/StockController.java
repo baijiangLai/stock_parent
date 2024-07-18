@@ -115,8 +115,39 @@ public class StockController {
      * 单个个股日K 数据查询 ，可以根据时间区间查询数日的K线数据
      * @param stockCode 股票编码
      */
-    @RequestMapping("/stock/screen/dkline")
+    @GetMapping("/stock/screen/dkline")
     public R<List<Stock4EvrDayDomain>> getDayKLinData(@RequestParam("code") String stockCode){
         return stockService.stockScreenDkLine(stockCode);
+    }
+
+    /**
+     * 外盘指数行情数据查询，根据时间和大盘点数降序排序取前4
+     */
+    @GetMapping("/external/index")
+    public R<List<StockExternalDomain>> getExternalIndexAll() {
+        return stockService.externalIndexAll();
+    }
+
+    /**
+     * 根据输入的个股代码，进行模糊查询，返回证券代码和证券名称
+     * @param searchStr
+     * @return
+     */
+    @GetMapping("/stock/search")
+    public R<List<Map>> fuzzyStockCode(@RequestParam(value = "searchStr", required = true) String searchStr) {
+        return stockService.fuzzyStockCode(searchStr);
+    }
+
+    /**
+     * 个股主营业务查询接口
+     */
+    @GetMapping("/stock/describe")
+    public R<StockRtDescribeDomain> getStockRtDescribe(@RequestParam(value = "code", required = true) String code) {
+        return stockService.getStockRtDescribe(code);
+    }
+
+    @GetMapping("/stock/screen/weekkline")
+    public R<List<Stock4EvrWeekDomain>> getWeekKLinData(@RequestParam("code") String stockCode) {
+        return stockService.getWeekKLinData(stockCode);
     }
 }

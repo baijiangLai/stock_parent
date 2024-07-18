@@ -1,6 +1,11 @@
 package com.lbj.stock.mapper;
 
+import com.lbj.stock.pojo.domain.StockExternalDomain;
 import com.lbj.stock.pojo.entity.StockOuterMarketIndexInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
 
 /**
 * @author 95174
@@ -22,4 +27,5 @@ public interface StockOuterMarketIndexInfoMapper {
 
     int updateByPrimaryKey(StockOuterMarketIndexInfo record);
 
+    List<StockExternalDomain> getMarketInfo(@Param("outerCodes") List<String> outerCodes, @Param("curDate") Date curDate);
 }

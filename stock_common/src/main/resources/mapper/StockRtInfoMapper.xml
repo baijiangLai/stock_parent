@@ -149,6 +149,68 @@
           and sri2.stock_code=#{code}
         order by date asc
     </select>
+    <select id="getFuzzyCode" resultType="java.util.Map">
+        select stock_code,stock_name from stock_rt_info where stock_code like CONCAT(#{searchStr}, '%')
+    </select>
+    <select id="getStockInfo4EvrWeek" resultType="com.lbj.stock.pojo.domain.Stock4EvrWeekDomain">
+        select
+            date_format(sri2.cur_time,'%Y%m%d') as date,
+             sri2.trade_amount as tradeAmt,
+             sri2.stock_code as code,
+             sri2.min_price as lowPrice,
+             sri2.stock_name as name,
+             sri2.max_price as highPrice,
+             sri2.open_price as openPrice,
+             sri2.trade_volume as tradeVol,
+             sri2.cur_price as closePrice,
+             sri2.pre_close_price as preClosePrice
+        from stock_rt_info as sri2
+        where sri2.cur_time in (select
+            max(sri.cur_time) as max_time
+            from stock_rt_info as sri
+            where sri.stock_code=#{stockCode}
+          and sri.cur_time between  #{startTime}   and	#{endTime}
+            group by date_format(sri.cur_time,'%Y%m%d'))
+          and sri2.stock_code=#{stockCode}
+        order by date asc
+    </select>
+    <select id="getTime4EvrWeek" resultType="java.util.Map">
+        select
+            max( sri.cur_time ) as maxTime,
+            min( sri.cur_time ) as minTime
+        from
+            stock_rt_info as sri
+        where
+            sri.stock_code = #{stockCode}
+          and sri.cur_time between #{startTime} and #{endTime}
+        group by
+            week( sri.cur_time, '%Y%m%d' )
+    </select>
+    <select id="getWeekAvgPrice" resultType="java.math.BigDecimal">
+        select avg(cur_price) from stock_rt_info
+        where stock_code = #{stockCode}
+          and cur_time between  #{minTime} and #{maxTime}
+    </select>
+    <select id="getWeekMinPrice" resultType="java.math.BigDecimal">
+        select min(min_price) from stock_rt_info
+        where stock_code = #{stockCode}
+          and cur_time between  #{minTime} and #{maxTime}
+    </select>
+    <select id="getWeekMaxPrice" resultType="java.math.BigDecimal">
+        select max(min_price) from stock_rt_info
+        where stock_code = #{stockCode}
+          and cur_time between  #{minTime} and #{maxTime}
+    </select>
+    <select id="getWeekOpenPrice" resultType="java.math.BigDecimal">
+        select open_price from stock_rt_info
+        where stock_code = #{stockCode}
+          and cur_time = #{minTime}
+    </select>
+    <select id="getWeekClosePrice" resultType="java.math.BigDecimal">
+        select open_price from stock_rt_info
+        where stock_code = #{stockCode}
+          and cur_time = #{maxTime}
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from stock_rt_info

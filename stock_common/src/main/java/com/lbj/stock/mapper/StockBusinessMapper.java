@@ -1,6 +1,8 @@
 package com.lbj.stock.mapper;
 
+import com.lbj.stock.pojo.domain.StockRtDescribeDomain;
 import com.lbj.stock.pojo.entity.StockBusiness;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -26,4 +28,5 @@ public interface StockBusinessMapper {
 
     List<String> getStockIds();
 
+    StockRtDescribeDomain getStockRtDescribe(@Param("code") String code);
 }

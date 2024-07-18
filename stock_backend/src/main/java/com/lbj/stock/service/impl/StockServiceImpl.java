@@ -1,15 +1,14 @@
 package com.lbj.stock.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.lbj.stock.mapper.StockBlockRtInfoMapper;
-import com.lbj.stock.mapper.StockMarketIndexInfoMapper;
+import com.lbj.stock.mapper.*;
 import com.lbj.stock.pojo.vo.StockInfoConfig;
-import com.lbj.stock.mapper.StockRtInfoMapper;
 import com.lbj.stock.pojo.domain.*;
 import com.lbj.stock.vo.resp.PageResult;
 import com.lbj.stock.vo.resp.R;
@@ -24,7 +23,10 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,10 @@ public class StockServiceImpl implements StockService {
     private StockBlockRtInfoMapper stockBlockRtInfoMapper;
     @Autowired
     private StockRtInfoMapper stockRtInfoMapper;
+    @Autowired
+    private StockOuterMarketIndexInfoMapper stockOuterMarketIndexInfoMapper;
+    @Autowired
+    private StockBusinessMapper stockBusinessMapper;
     @Autowired
     private StockInfoConfig stockInfoConfig;
     @Autowired
@@ -303,6 +309,87 @@ public class StockServiceImpl implements StockService {
         List<Stock4EvrDayDomain> data= stockRtInfoMapper.getStockInfo4EvrDay(code,startTime,endTime);
         //3.组装数据，响应
         return R.ok(data);
+    }
+
+    @Override
+    public R<List<StockExternalDomain>> externalIndexAll() {
+        //从缓存中加载数据，如果不存在，则走补偿策略获取数据，并存入本地缓存
+        R<List<StockExternalDomain>> data= (R<List<StockExternalDomain>>) caffeineCache.get("outerMarketKey", key->{
+            //如果不存在，则从数据库查询
+            //1.获取最新的股票交易时间点
+            Date curDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
+            //TODO 伪造数据，后续删除
+            curDate=DateTime.parse("2021-12-01 10:57:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+            //2.获取国内大盘编码集合
+            List<String> outerCodes = stockInfoConfig.getOuter();
+            //3.调用mapper查询
+            List<StockExternalDomain> infos= stockOuterMarketIndexInfoMapper.getMarketInfo(outerCodes,curDate);
+            //4.响应
+            return R.ok(infos);
+        });
+        return data;
+    }
+
+    @Override
+    public R<List<Map>> fuzzyStockCode(String searchStr) {
+        List<Map> fuzzyCodes = stockRtInfoMapper.getFuzzyCode(searchStr);
+        return R.ok(fuzzyCodes);
+    }
+
+    @Override
+    public R<StockRtDescribeDomain> getStockRtDescribe(String code) {
+        StockRtDescribeDomain result = stockBusinessMapper.getStockRtDescribe(code);
+        return R.ok(result);
+    }
+
+    @Override
+    public R<List<Stock4EvrWeekDomain>> getWeekKLinData(String stockCode) {
+        List<Stock4EvrWeekDomain> res = new ArrayList<>();
+        //1.获取查询的日期范围
+        //1.1 获取截止时间
+        DateTime endDateTime = DateTimeUtil.getLastDate4Stock(DateTime.now());
+        Date endTime = endDateTime.toDate();
+        //TODO MOCKDATA
+        endTime=DateTime.parse("2024-07-17 15:00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        //1.2 获取开始时间
+        DateTime startDateTime = endDateTime.minusDays(10);
+        Date startTime = startDateTime.toDate();
+        //TODO MOCKDATA
+        startTime=DateTime.parse("2022-01-01 09:30:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+//        List<Map> maxTimeList = stockRtInfoMapper.getMaxTime4EvrWeek(stockCode, startDateTime, endDateTime);
+//        List<Map> minTimeList = stockRtInfoMapper.getMinTime4EvrWeek(stockCode, startDateTime, endDateTime);
+        List<Map> timeInfos = stockRtInfoMapper.getTime4EvrWeek(stockCode, startTime, endTime);
+        for (int i = 0; i < timeInfos.size(); i++) {
+            Map map = timeInfos.get(i);
+            Timestamp maxTimeDb = (Timestamp) map.get("maxTime");
+            Timestamp minTimeDb = (Timestamp) map.get("minTime");
+            String maxTime = maxTimeDb.toString();
+            String minTime = minTimeDb.toString();
+
+            BigDecimal avgPrice = stockRtInfoMapper.getWeekAvgPrice(stockCode, maxTime, minTime);
+            BigDecimal minPrice = stockRtInfoMapper.getWeekMinPrice(stockCode, maxTime, minTime);
+            BigDecimal openPrice = stockRtInfoMapper.getWeekOpenPrice(stockCode, maxTime, minTime);
+            BigDecimal maxPrice = stockRtInfoMapper.getWeekMaxPrice(stockCode, maxTime, minTime);
+            BigDecimal closePrice = stockRtInfoMapper.getWeekClosePrice(stockCode, maxTime, minTime);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+            try {
+                Stock4EvrWeekDomain stock4EvrWeekDomain = Stock4EvrWeekDomain.builder()
+                        .stockCode(stockCode)
+                        .avgPrice(avgPrice)
+                        .minPrice(minPrice)
+                        .openPrice(openPrice)
+                        .maxPrice(maxPrice)
+                        .closePrice(closePrice)
+                        .mxTime(sdf.parse(maxTime))
+                        .build();
+                res.add(stock4EvrWeekDomain);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        //3.组装数据，响应
+        return R.ok(res);
     }
 
 

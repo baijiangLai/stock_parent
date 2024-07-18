@@ -28,4 +28,12 @@ public interface StockService {
     R<List<Stock4MinuteDomain>> stockScreenTimeSharing(String code);
 
     R<List<Stock4EvrDayDomain>> stockScreenDkLine(String stockCode);
+
+    R<List<StockExternalDomain>> externalIndexAll();
+
+    R<List<Map>> fuzzyStockCode(String searchStr);
+
+    R<StockRtDescribeDomain> getStockRtDescribe(String code);
+
+    R<List<Stock4EvrWeekDomain>> getWeekKLinData(String stockCode);
 }
