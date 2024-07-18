@@ -20,12 +20,14 @@ import org.joda.time.DateTime;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -63,6 +65,9 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
     private HttpEntity<Object> httpEntity;
+
+    @Autowired
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @Override
     public void getInnerMarketInfo() {
@@ -153,28 +158,30 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
         //计算出符合sina命名规范的股票id数据
         stockIds = stockIds.stream().map(id -> id.startsWith("6") ? "sh" + id : "sz" + id).collect(Collectors.toList());
         //一次性查询过多，我们将需要查询的数据先进行分片处理，每次最多查询20条股票数据
-        Lists.partition(stockIds,10).forEach(codes->{
-            //拼接股票url地址
-            String stockUrl=stockInfoConfig.getMarketUrl()+String.join(",",codes);
-            //2.调用restTemplate采集数据
-            //2.3 resetTemplate发起请求
-            ResponseEntity<String> responseEntity = restTemplate.exchange(stockUrl, HttpMethod.GET, httpEntity, String.class);
+        Lists.partition(stockIds,15).forEach(codes->{
+            threadPoolTaskExecutor.execute(() ->{
+                //拼接股票url地址
+                String stockUrl=stockInfoConfig.getMarketUrl()+String.join(",",codes);
+                //2.调用restTemplate采集数据
+                //2.3 resetTemplate发起请求
+                ResponseEntity<String> responseEntity = restTemplate.exchange(stockUrl, HttpMethod.GET, httpEntity, String.class);
 
-            int statusCode = responseEntity.getStatusCodeValue();
-            if (statusCode != 200) {
-                log.error("当前时间点:{},采集数据失败,状态码:{}", DateTime.now().toString("yyyy-MM-dd HH:mm:ss"), statusCode);
-                return;
-            }
+                int statusCode = responseEntity.getStatusCodeValue();
+                if (statusCode != 200) {
+                    log.error("当前时间点:{},采集数据失败,状态码:{}", DateTime.now().toString("yyyy-MM-dd HH:mm:ss"), statusCode);
+                    return;
+                }
 
-            String body = responseEntity.getBody();
-            List<StockRtInfo> infos = parserStockInfoUtil.parser4StockOrMarketInfo(body, ParseType.ASHARE);
-            log.info("数据量：{}",infos.size());
+                String body = responseEntity.getBody();
+                List<StockRtInfo> infos = parserStockInfoUtil.parser4StockOrMarketInfo(body, ParseType.ASHARE);
+                log.info("数据量：{}",infos.size());
+                log.info("数据是: {}", Arrays.toString(infos.toArray()));
 
-            //TODO 批量插入
-            int count = stockRtInfoMapper.insertBatch(infos);
-            if (count > 0) {
-                log.info("A股个股插入数据: {}", count);
-            }
+                int count = stockRtInfoMapper.insertBatch(infos);
+                if (count > 0) {
+                    log.info("A股个股插入数据: {}", count);
+                }
+            });
         });
     }
 
@@ -187,7 +194,6 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
             log.error("当前时间点:{},采集数据失败,状态码:{}", DateTime.now().toString("yyyy-MM-dd HH:mm:ss"), statusCode);
         }
         String body = responseEntity.getBody();
-        System.out.println(body);
         List<StockBlockRtInfo> stockBlockRtInfos = parserStockInfoUtil.parse4StockBlock(body);
         Lists.partition(stockBlockRtInfos, 10).forEach(info->{
             int count = stockBlockRtInfoMapper.insertBatch(info);

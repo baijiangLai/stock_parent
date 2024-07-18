@@ -1,0 +1,14 @@
+logging:
+    config: classpath:logback.xml
+xxl:
+    job:
+        accessToken: ''
+        admin:
+            addresses: http://123.249.35.178:8093/xxl-job-admin
+        executor:
+            address: ''
+            appname: stock-executor
+            ip: ''
+            logpath: ./logs
+            logretentiondays: 30
+            port: 7979
