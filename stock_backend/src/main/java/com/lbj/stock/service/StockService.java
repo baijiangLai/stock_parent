@@ -36,4 +36,8 @@ public interface StockService {
     R<StockRtDescribeDomain> getStockRtDescribe(String code);
 
     R<List<Stock4EvrWeekDomain>> getWeekKLinData(String stockCode);
+
+    R<StockRtDetailDomain> getRtData(String stockCode);
+
+    R<List<StockSecondDomain>> getTradeTop10(String stockCode);
 }

@@ -392,5 +392,21 @@ public class StockServiceImpl implements StockService {
         return R.ok(res);
     }
 
+    @Override
+    public R<StockRtDetailDomain> getRtData(String stockCode) {
+        Date curDate = DateTimeUtil.getLastDate4Stock(DateTime.now()).toDate();
+        //因为对于当前来说，我们没有实现股票信息实时采集的功能，所以最新时间点下的数据
+        //在数据库中是没有的，所以，先临时指定一个假数据,后续注释掉该代码即可
+        curDate=DateTime.parse("2022-01-05 09:47:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")).toDate();
+        StockRtDetailDomain stockRtDescribeDomain = stockRtInfoMapper.getDetail(curDate, stockCode);
+        return R.ok(stockRtDescribeDomain);
+    }
+
+    @Override
+    public R<List<StockSecondDomain>> getTradeTop10(String stockCode) {
+        List<StockSecondDomain> data = stockRtInfoMapper.getTradeTop10(stockCode);
+        return R.ok(data);
+    }
+
 
 }

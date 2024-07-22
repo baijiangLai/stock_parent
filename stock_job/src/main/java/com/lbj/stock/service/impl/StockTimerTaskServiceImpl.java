@@ -3,12 +3,10 @@ package com.lbj.stock.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.lbj.stock.constant.ParseType;
-import com.lbj.stock.mapper.StockBlockRtInfoMapper;
-import com.lbj.stock.mapper.StockBusinessMapper;
-import com.lbj.stock.mapper.StockMarketIndexInfoMapper;
-import com.lbj.stock.mapper.StockRtInfoMapper;
+import com.lbj.stock.mapper.*;
 import com.lbj.stock.pojo.entity.StockBlockRtInfo;
 import com.lbj.stock.pojo.entity.StockMarketIndexInfo;
+import com.lbj.stock.pojo.entity.StockOuterMarketIndexInfo;
 import com.lbj.stock.pojo.entity.StockRtInfo;
 import com.lbj.stock.pojo.vo.StockInfoConfig;
 import com.lbj.stock.service.StockTimerTaskService;
@@ -61,6 +59,9 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
 
     @Autowired
     private StockBlockRtInfoMapper stockBlockRtInfoMapper;
+
+    @Autowired
+    private StockOuterMarketIndexInfoMapper stockOuterMarketIndexInfoMapper;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -148,6 +149,79 @@ public class StockTimerTaskServiceImpl implements StockTimerTaskService {
             log.info("批量插入了：{}条数据", count);
             //通知backend刷新缓存
             rabbitTemplate.convertAndSend("stockExchange", "inner.market", new Date());
+        }
+    }
+
+    @Override
+    public void getOuterMarketInfo() {
+        //1.定义采集的url接口
+        String url=stockInfoConfig.getMarketUrl() + String.join(",",stockInfoConfig.getOuter());
+        //2.调用restTemplate采集数据
+        //2.3 resetTemplate发起请求
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+        int statusCode = responseEntity.getStatusCodeValue();
+        if (statusCode != 200) {
+            log.error("当前时间点:{},采集数据失败,状态码:{}", DateTime.now().toString("yyyy-MM-dd HH:mm:ss"), statusCode);
+            return;
+        }
+
+        String body = responseEntity.getBody();
+        log.info("当前采集的数据：{}",body);
+        //log.info("当前采集的数据：{}",resString);
+        //3.数据解析（重要）
+//        var hq_str_int_dji="道琼斯,41198.08,243.60,0.59";
+//        var hq_str_int_nasdaq="纳斯达克,17996.93,-512.41,-2.77";
+//        var hq_str_int_hangseng="恒生指数,17856.01,116.60,0.66";
+//        var hq_str_int_nikkei="日经指数,40126.35,-971.34,-2.36";
+//        var hq_str_b_TWSE="台湾台北指数,23398.47,-371.35,-1.56,2:30 AM,14:30:00";
+//        var hq_str_b_FSSTI="富时新加坡海峡时报指数,3468.91,-20.66,-0.59,2:56 AM,14:56:00";
+
+        String reg="var hq_str_(.+)=\"(.+)\";";
+        //编译表达式,获取编译对象
+        Pattern pattern = Pattern.compile(reg);
+        //匹配字符串
+        Matcher matcher = pattern.matcher(body);
+        ArrayList<StockOuterMarketIndexInfo> list = new ArrayList<>();
+        //判断是否有匹配的数值
+        while (matcher.find()){
+            //获取大盘的code
+            String marketCode = matcher.group(1);
+            //获取其它信息，字符串以逗号间隔
+            String otherInfo=matcher.group(2);
+            //以逗号切割字符串，形成数组
+            String[] splitArr = otherInfo.split(",");
+            //大盘名称
+            String marketName=splitArr[0];
+            //获取当前大盘的开盘点数
+            BigDecimal curPoint=new BigDecimal(splitArr[1]);
+            // 涨跌值
+            BigDecimal updown = new BigDecimal(splitArr[2]);
+            //涨幅
+            BigDecimal rose = new BigDecimal(splitArr[3]);
+            //时间
+            Date curTime = DateTime.now().toDate();
+            //组装entity对象
+            StockOuterMarketIndexInfo info = StockOuterMarketIndexInfo.builder()
+                    .id(idWorker.nextId())
+                    .marketCode(marketCode)
+                    .marketName(marketName)
+                    .curPoint(curPoint)
+                    .updown(updown)
+                    .rose(rose)
+                    .curTime(curTime)
+                    .build();
+            //收集封装的对象，方便批量插入
+            list.add(info);
+        }
+        log.info("采集的当前大盘数据：{}",list);
+        //批量插入
+        if (CollectionUtil.isEmpty(list)) {
+            return;
+        }
+//        //TODO 后续完成批量插入功能
+        int count = stockOuterMarketIndexInfoMapper.insertBatch(list);
+        if (count > 0) {
+            log.info("批量插入了：{}条数据", count);
         }
     }
 

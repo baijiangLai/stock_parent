@@ -54,6 +54,19 @@
         ,#{curPoint,jdbcType=DECIMAL},#{updown,jdbcType=DECIMAL},#{rose,jdbcType=DECIMAL}
         ,#{curTime,jdbcType=TIMESTAMP})
     </insert>
+
+    <insert id="insertBatch">
+        insert into stock_outer_market_index_info
+        ( id,market_code,market_name
+        ,cur_point,updown,rose
+        ,cur_time)
+        values
+            <foreach collection="list" item="item" separator=",">
+                (#{item.id,jdbcType=BIGINT},#{item.marketCode,jdbcType=CHAR},#{item.marketName,jdbcType=VARCHAR}
+                ,#{item.curPoint,jdbcType=DECIMAL},#{item.updown,jdbcType=DECIMAL},#{item.rose,jdbcType=DECIMAL}
+                ,#{item.curTime,jdbcType=TIMESTAMP})
+            </foreach>
+    </insert>
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.lbj.stock.pojo.entity.StockOuterMarketIndexInfo" useGeneratedKeys="true">
         insert into stock_outer_market_index_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

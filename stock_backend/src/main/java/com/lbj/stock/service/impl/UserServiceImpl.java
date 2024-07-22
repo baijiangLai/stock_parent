@@ -20,7 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -82,6 +84,9 @@ public class UserServiceImpl implements UserService {
         //7.正常响应
         LoginRespVo respVo = new LoginRespVo();
         BeanUtil.copyProperties(dbUser,respVo);
+        List<Menu> menus = new ArrayList<>();
+        // TO
+        respVo.setMenus(menus);
         return R.ok(respVo);
     }
 

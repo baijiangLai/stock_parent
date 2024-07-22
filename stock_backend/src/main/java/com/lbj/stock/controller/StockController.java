@@ -150,4 +150,14 @@ public class StockController {
     public R<List<Stock4EvrWeekDomain>> getWeekKLinData(@RequestParam("code") String stockCode) {
         return stockService.getWeekKLinData(stockCode);
     }
+
+    @GetMapping("/stock/screen/second/detail")
+    public R<StockRtDetailDomain> getRtData(@RequestParam("code") String stockCode) {
+        return stockService.getRtData(stockCode);
+    }
+
+    @GetMapping("/stock/screen/second")
+    public R<List<StockSecondDomain>> getTradeTop10(@RequestParam("code") String stockCode) {
+        return stockService.getTradeTop10(stockCode);
+    }
 }

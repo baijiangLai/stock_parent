@@ -1,9 +1,6 @@
 package com.lbj.stock.mapper;
 
-import com.lbj.stock.pojo.domain.Stock4EvrDayDomain;
-import com.lbj.stock.pojo.domain.Stock4EvrWeekDomain;
-import com.lbj.stock.pojo.domain.Stock4MinuteDomain;
-import com.lbj.stock.pojo.domain.StockUpdownDomain;
+import com.lbj.stock.pojo.domain.*;
 import com.lbj.stock.pojo.entity.StockRtInfo;
 import org.apache.ibatis.annotations.Param;
 import org.joda.time.DateTime;
@@ -62,4 +59,8 @@ public interface StockRtInfoMapper {
     BigDecimal getWeekMaxPrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
 
     BigDecimal getWeekClosePrice(@Param("stockCode") String stockCode, @Param("maxTime") String maxTime, @Param("minTime") String minTime);
+
+    StockRtDetailDomain getDetail(@Param("curDate") Date curDate, @Param("stockCode") String stockCode);
+
+    List<StockSecondDomain> getTradeTop10(@Param("stockCode") String stockCode);
 }

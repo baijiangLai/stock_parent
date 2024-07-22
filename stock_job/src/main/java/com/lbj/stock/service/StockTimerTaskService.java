@@ -10,6 +10,11 @@ public interface StockTimerTaskService {
     void getInnerMarketInfo();
 
     /**
+     * 获取国外大盘的实时数据信息
+     */
+    void getOuterMarketInfo();
+
+    /**
      * 定义获取分钟级股票数据
      */
     void getStockRtIndex();

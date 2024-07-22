@@ -20,7 +20,7 @@ class StockTimerTaskServiceTest {
     private StockBusinessMapper stockBusinessMapper;
     @Test
     public void testGetData() {
-        stockTimerTaskService.getInnerMarketInfo();
+        stockTimerTaskService.getOuterMarketInfo();
     }
 
     @Test
