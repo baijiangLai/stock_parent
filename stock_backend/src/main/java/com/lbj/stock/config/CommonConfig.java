@@ -14,15 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //打开相关配置对象
 @EnableConfigurationProperties(StockInfoConfig.class)
 public class CommonConfig {
-    /**
-     * 密码加密器
-     * BCryptPasswordEncoder方法采用SHA-256对密码进行加密
-     * @return
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
 
     /**
      * 配置id生成器bean

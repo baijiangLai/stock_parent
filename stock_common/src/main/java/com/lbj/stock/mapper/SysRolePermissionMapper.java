@@ -1,6 +1,10 @@
 package com.lbj.stock.mapper;
 
 import com.lbj.stock.pojo.entity.SysRolePermission;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
 
 /**
 * @author 95174
@@ -21,5 +25,19 @@ public interface SysRolePermissionMapper {
     int updateByPrimaryKeySelective(SysRolePermission record);
 
     int updateByPrimaryKey(SysRolePermission record);
+
+    /**
+     * 添加角色对应的权限
+     */
+    int addPermissionOfRole(@Param("id") String id, @Param("roleId") String roleId, @Param("permissionId") String permissionsId, @Param("createTime") Date createTime);
+
+    List<String> getPerIdsOfUser(@Param("roleId") String roleId);
+
+
+    int deleteByRoleId(@Param("id") String id);
+
+    int addRolePermissionBatch(@Param("rps") List<SysRolePermission> rps);
+
+    int deleteByPermissionId(@Param("id") String id);
 
 }

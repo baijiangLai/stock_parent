@@ -21,6 +21,8 @@ public enum ResponseCode{
     OPERATION_MENU_PERMISSION_MENU_ERROR(0,"操作后的菜单类型是菜单，所属菜单必须为目录类型"),
     OPERATION_MENU_PERMISSION_BTN_ERROR(0,"操作后的菜单类型是按钮，所属菜单必须为菜单类型"),
     OPERATION_MENU_PERMISSION_URL_CODE_NULL(0,"菜单权限的按钮标识不能为空"),
+    SYSTEM_PASSWORD_ERROR(5008,"账号或密码错误"),
+    TOKEN_NO_AVAIL(-1,"token无效或过期"),
     ROLE_PERMISSION_RELATION(0, "该菜单权限存在子集关联，不允许删除");
     private int code;
     private String message;

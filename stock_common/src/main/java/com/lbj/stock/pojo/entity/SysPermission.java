@@ -2,13 +2,21 @@ package com.lbj.stock.pojo.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.checkerframework.common.aliasing.qual.NonLeaked;
 
 /**
  * 权限表（菜单）
  * @TableName sys_permission
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class SysPermission implements Serializable {
     /**
      * 主键
